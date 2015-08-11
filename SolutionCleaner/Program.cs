@@ -17,16 +17,19 @@ namespace SolutionCleaner
             var dir = @"C:\dev\SolutionCleaner";
             var projs = "*.csproj";
 
+            var signingKeyFileName = "SolutionCleaner.snk";
+            var signingKeyPath = Path.Combine(dir, signingKeyFileName);
+
             var ns = new XmlNamespaceManager(new System.Xml.NameTable());
             ns.AddNamespace("build", @"http://schemas.microsoft.com/developer/msbuild/2003");
 
             foreach (var csprojFile in Directory.EnumerateFiles(dir, projs, SearchOption.AllDirectories))
             {
-                ProcessCSProj(csprojFile, ns);
+                ProcessCSProj(csprojFile, ns, signingKeyPath);
             }
         }
 
-        public static void ProcessCSProj(string csprojFile, IXmlNamespaceResolver ns)
+        public static void ProcessCSProj(string csprojFile, IXmlNamespaceResolver ns, string signingKeyPath)
         {
             var projName = Path.GetFileNameWithoutExtension(csprojFile);
             var projDir = Path.GetDirectoryName(csprojFile);
@@ -111,10 +114,40 @@ namespace SolutionCleaner
                 proj.XPathSelectElements("//build:RunPostBuildEvent", ns).Remove();
             #endregion
 
+            #region Configure signing
+            proj.XPathSelectElements("//build:SignAssembly", ns).Remove();
+            proj.XPathSelectElements("//build:DelaySign", ns).Remove();
+            proj.XPathSelectElements("//build:AssemblyOriginatorKeyFile", ns).Remove();
+            proj.XPathSelectElements("//build:AssemblyKeyContainerName", ns).Remove();
+
+            var mainPG = proj.XPathSelectElements("//build:PropertyGroup[build:ProjectGuid]", ns).FirstOrDefault();
+            if (mainPG != null)
+            {
+                //mainPG.AddElement("ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch", content: "None");
+
+                mainPG.AddElement("SignAssembly", content: true);
+                mainPG.AddElement("DelaySign", content: false);
+                mainPG.AddElement("AssemblyOriginatorKeyFile", content: PathTo(signingKeyPath, csprojFile));
+            }
+            #endregion
+
             proj.XPathSelectElements("//build:PropertyGroup", ns).Where(e => !e.Nodes().Any()).Remove();
             proj.XPathSelectElements("//build:ItemGroup", ns).Where(e => !e.Nodes().Any()).Remove();
 
             proj.Save(csprojFile);
+        }
+
+        #region XML helpers
+        public static void AddElement(this XElement parent, string localName, object content = null, bool first = false, bool nonUnique = false)
+        {
+            if (nonUnique || !parent.Elements().Where(e => e.Name.LocalName == localName).Any())
+            {
+                var e = new XElement(XName.Get(localName, parent.Name.NamespaceName), content);
+                if (first)
+                    parent.AddFirst(e);
+                else
+                    parent.Add(e);
+            }
         }
 
         public static void SetValue(this IEnumerable<XElement> enumerable, string value)
@@ -139,6 +172,33 @@ namespace SolutionCleaner
         {
             foreach (var item in enumerable)
                 item.Value = value;
+        }
+        #endregion
+
+        public static string PathTo(string path, string refPath)
+        {
+            var refFolder = Directory.Exists(refPath) ? refPath : Path.GetDirectoryName(refPath);
+
+            var pathParts = path.Split(Path.DirectorySeparatorChar);
+            var refParts = refFolder.Split(Path.DirectorySeparatorChar);
+
+            var common = 0;
+            for (int i = 0; i < pathParts.Length && i < refParts.Length; ++i)
+            {
+                common = i;
+                if (String.Compare(pathParts[i], refParts[i], true) != 0)
+                {
+                    break;
+                }
+            }
+            if (String.Compare(pathParts[common], refParts[common], true) == 0)
+            {
+                ++common;
+            }
+
+            var result = String.Join(Path.DirectorySeparatorChar.ToString(), Enumerable.Repeat("..", (refParts.Length - common)).Concat(pathParts.Skip(common)).ToArray());
+
+            return result;
         }
     }
 }
