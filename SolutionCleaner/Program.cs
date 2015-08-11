@@ -37,6 +37,7 @@ namespace SolutionCleaner
             if (proj.Name.LocalName == "VisualStudioProject")
                 return;
 
+            #region Remove Cruft
             proj.XPathSelectElements("//build:AutorunEnabled", ns).Remove();
             proj.XPathSelectElements("//build:PublishWizardCompleted", ns).Remove();
             proj.XPathSelectElements("//build:TargetZone", ns).Remove();
@@ -83,8 +84,9 @@ namespace SolutionCleaner
             proj.XPathSelectElements("//build:IISExpressAnonymousAuthentication", ns).Remove();
             proj.XPathSelectElements("//build:IISExpressWindowsAuthentication", ns).Remove();
             proj.XPathSelectElements("//build:IISExpressUseClassicPipelineMode", ns).Remove();
+            #endregion
 
-
+            #region Clean up References
             proj.XPathSelectElements("//build:Reference[@Include='System.configuration']", ns).Attributes("Include").SetValue("System.Configuration");
             proj.XPathSelectElements("//build:Reference[@Include='System.XML']", ns).Attributes("Include").SetValue("System.Xml");
 
@@ -94,6 +96,7 @@ namespace SolutionCleaner
             proj.XPathSelectElements("//build:CurrentPlatform", ns).Remove();
             proj.XPathSelectElements("//build:Reference/build:Name", ns).Remove();
             proj.XPathSelectElements("//build:Reference/build:RequiredTargetFramework", ns).Remove();
+            #endregion
 
             #region Clean up PreBuildEvent/PostBuildEvent
             proj.XPathSelectElements("//build:PostBuildEvent", ns).Where(e => e.Value.IndexOf("sn.exe", StringComparison.CurrentCultureIgnoreCase) > 0).SetValue("");
