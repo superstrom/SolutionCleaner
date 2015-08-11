@@ -95,6 +95,19 @@ namespace SolutionCleaner
             proj.XPathSelectElements("//build:Reference/build:Name", ns).Remove();
             proj.XPathSelectElements("//build:Reference/build:RequiredTargetFramework", ns).Remove();
 
+            #region Clean up PreBuildEvent/PostBuildEvent
+            proj.XPathSelectElements("//build:PostBuildEvent", ns).Where(e => e.Value.IndexOf("sn.exe", StringComparison.CurrentCultureIgnoreCase) > 0).SetValue("");
+
+            proj.XPathSelectElements("//build:PreBuildEvent", ns).Where(e => String.IsNullOrWhiteSpace(e.Value)).Remove();
+            proj.XPathSelectElements("//build:PostBuildEvent", ns).Where(e => String.IsNullOrWhiteSpace(e.Value)).Remove();
+
+            if (!proj.XPathSelectElements("//build:PreBuildEvent", ns).Any(e => String.IsNullOrWhiteSpace(e.Value)))
+                proj.XPathSelectElements("//build:RunPreBuildEvent", ns).Remove();
+
+            if (!proj.XPathSelectElements("//build:PostBuildEvent", ns).Any(e => String.IsNullOrWhiteSpace(e.Value)))
+                proj.XPathSelectElements("//build:RunPostBuildEvent", ns).Remove();
+            #endregion
+
             proj.XPathSelectElements("//build:PropertyGroup", ns).Where(e => !e.Nodes().Any()).Remove();
             proj.XPathSelectElements("//build:ItemGroup", ns).Where(e => !e.Nodes().Any()).Remove();
 
