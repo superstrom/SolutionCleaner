@@ -84,6 +84,9 @@ namespace SolutionCleaner
             proj.XPathSelectElements("//build:IISExpressWindowsAuthentication", ns).Remove();
             proj.XPathSelectElements("//build:IISExpressUseClassicPipelineMode", ns).Remove();
 
+            proj.XPathSelectElements("//build:PropertyGroup", ns).Where(e => !e.Nodes().Any()).Remove();
+            proj.XPathSelectElements("//build:ItemGroup", ns).Where(e => !e.Nodes().Any()).Remove();
+
             proj.Save(csprojFile);
         }
     }
