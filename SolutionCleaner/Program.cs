@@ -10,7 +10,7 @@ using System.Xml.XPath;
 
 namespace SolutionCleaner
 {
-    class Program
+    static class Program
     {
         static void Main(string[] args)
         {
@@ -84,10 +84,45 @@ namespace SolutionCleaner
             proj.XPathSelectElements("//build:IISExpressWindowsAuthentication", ns).Remove();
             proj.XPathSelectElements("//build:IISExpressUseClassicPipelineMode", ns).Remove();
 
+
+            proj.XPathSelectElements("//build:Reference[@Include='System.configuration']", ns).Attributes("Include").SetValue("System.Configuration");
+            proj.XPathSelectElements("//build:Reference[@Include='System.XML']", ns).Attributes("Include").SetValue("System.Xml");
+
+            proj.XPathSelectElements("//build:AssemblyFolderKey", ns).Remove();
+            proj.XPathSelectElements("//build:SpecificVersion", ns).Remove();
+            proj.XPathSelectElements("//build:ReferencePath", ns).Remove();
+            proj.XPathSelectElements("//build:CurrentPlatform", ns).Remove();
+            proj.XPathSelectElements("//build:Reference/build:Name", ns).Remove();
+            proj.XPathSelectElements("//build:Reference/build:RequiredTargetFramework", ns).Remove();
+
             proj.XPathSelectElements("//build:PropertyGroup", ns).Where(e => !e.Nodes().Any()).Remove();
             proj.XPathSelectElements("//build:ItemGroup", ns).Where(e => !e.Nodes().Any()).Remove();
 
             proj.Save(csprojFile);
+        }
+
+        public static void SetValue(this IEnumerable<XElement> enumerable, string value)
+        {
+            foreach (var e in enumerable)
+                e.Value = value;
+        }
+
+        public static void SetValue(this IEnumerable<XElement> enumerable, Func<string, string> value)
+        {
+            foreach (var e in enumerable)
+                e.Value = value(e.Value);
+        }
+
+        public static void SetValue(this IEnumerable<XElement> enumerable, bool value)
+        {
+            foreach (var e in enumerable)
+                e.Value = value.ToString().ToLower();
+        }
+
+        public static void SetValue(this IEnumerable<XAttribute> enumerable, string value)
+        {
+            foreach (var item in enumerable)
+                item.Value = value;
         }
     }
 }
