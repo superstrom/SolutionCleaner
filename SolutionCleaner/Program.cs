@@ -140,7 +140,7 @@ namespace SolutionCleaner
         #region XML helpers
         public static void AddElement(this XElement parent, string localName, object content = null, bool first = false, bool nonUnique = false)
         {
-            if (nonUnique || !parent.Elements().Where(e => e.Name.LocalName == localName).Any())
+            if (nonUnique || !parent.Elements().Any(e => e.Name.LocalName == localName))
             {
                 var e = new XElement(XName.Get(localName, parent.Name.NamespaceName), content);
                 if (first)
@@ -186,12 +186,12 @@ namespace SolutionCleaner
             for (int i = 0; i < pathParts.Length && i < refParts.Length; ++i)
             {
                 common = i;
-                if (String.Compare(pathParts[i], refParts[i], true) != 0)
+                if (String.Compare(pathParts[i], refParts[i], StringComparison.OrdinalIgnoreCase) != 0)
                 {
                     break;
                 }
             }
-            if (String.Compare(pathParts[common], refParts[common], true) == 0)
+            if (String.Compare(pathParts[common], refParts[common], StringComparison.OrdinalIgnoreCase) == 0)
             {
                 ++common;
             }
