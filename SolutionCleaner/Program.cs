@@ -20,8 +20,7 @@ namespace SolutionCleaner
             var signingKeyFileName = "SolutionCleaner.snk";
             var signingKeyPath = Path.Combine(dir, signingKeyFileName);
 
-            var ns = new XmlNamespaceManager(new System.Xml.NameTable());
-            ns.AddNamespace("build", @"http://schemas.microsoft.com/developer/msbuild/2003");
+            var ns = XmlHelpers.Resolver;
 
             foreach (var csprojFile in Directory.EnumerateFiles(dir, projs, SearchOption.AllDirectories))
             {
@@ -39,6 +38,8 @@ namespace SolutionCleaner
 
             if (proj.Name.LocalName == "VisualStudioProject")
                 return;
+
+
 
             #region Remove Cruft
             proj.XPathSelectElements("//build:AutorunEnabled", ns).Remove();
@@ -158,50 +159,6 @@ namespace SolutionCleaner
 
             proj.Save(csprojFile);
         }
-
-        #region XML helpers
-        public static void AddElement(this XElement parent, string localName, object content = null, bool first = false, bool nonUnique = false)
-        {
-            if (nonUnique || !parent.Elements().Any(e => e.Name.LocalName == localName))
-            {
-                var e = new XElement(XName.Get(localName, parent.Name.NamespaceName), content);
-                if (first)
-                    parent.AddFirst(e);
-                else
-                    parent.Add(e);
-            }
-        }
-
-        public static void SetValue(this IEnumerable<XElement> enumerable, string value)
-        {
-            foreach (var e in enumerable)
-                e.Value = value;
-        }
-
-        public static void SetValue(this IEnumerable<XElement> enumerable, Func<string, string> value)
-        {
-            foreach (var e in enumerable)
-                e.Value = value(e.Value);
-        }
-
-        public static void SetValue(this IEnumerable<XElement> enumerable, Func<XElement, string> value)
-        {
-            foreach (var e in enumerable)
-                e.Value = value(e);
-        }
-
-        public static void SetValue(this IEnumerable<XElement> enumerable, bool value)
-        {
-            foreach (var e in enumerable)
-                e.Value = value.ToString().ToLower();
-        }
-
-        public static void SetValue(this IEnumerable<XAttribute> enumerable, string value)
-        {
-            foreach (var item in enumerable)
-                item.Value = value;
-        }
-        #endregion
 
         private static string SubstringTill(this string value, char ch)
         {
