@@ -99,6 +99,22 @@ namespace SolutionCleaner
             proj.XPathSelectElements("//build:CurrentPlatform", ns).Remove();
             proj.XPathSelectElements("//build:Reference/build:Name", ns).Remove();
             proj.XPathSelectElements("//build:Reference/build:RequiredTargetFramework", ns).Remove();
+
+            var contentParent = proj.XPathSelectElements("//build:ItemGroup[build:Reference]", ns).FirstOrDefault();
+            if (contentParent != null)
+            {
+                if (contentParent.XPathSelectElements("//build:ProjectReference", ns).Any())
+                {
+                    var referenceParent = new XElement(XName.Get("ItemGroup", ns.LookupNamespace("build")));
+                    contentParent.AddBeforeSelf(referenceParent);
+                    contentParent = referenceParent;
+                }
+
+                var contents = proj.XPathSelectElements("//build:Reference", ns).OrderBy(c => c.Attribute("Include").Value.SubstringTill(',').Replace("System", "aaaaaaa")).ToArray();
+
+                contents.Remove();
+                contentParent.Add(contents);
+            }
             #endregion
 
             #region Clean up PreBuildEvent/PostBuildEvent
@@ -174,6 +190,14 @@ namespace SolutionCleaner
                 item.Value = value;
         }
         #endregion
+
+        private static string SubstringTill(this string value, char ch)
+        {
+            var index = value.IndexOf(ch);
+            if (index > 0)
+                return value.Substring(0, index);
+            return value;
+        }
 
         public static string PathTo(string path, string refPath)
         {
