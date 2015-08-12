@@ -117,6 +117,10 @@ namespace SolutionCleaner
             }
             #endregion
 
+            #region Clean up ProjectReferences
+            proj.XPathSelectElements("//build:ProjectReference[@Include]/build:Name", ns).SetValue(n => Path.GetFileNameWithoutExtension(n.Parent.Attribute("Include").Value));
+            #endregion
+
             #region Clean up PreBuildEvent/PostBuildEvent
             proj.XPathSelectElements("//build:PostBuildEvent", ns).Where(e => e.Value.IndexOf("sn.exe", StringComparison.CurrentCultureIgnoreCase) > 0).SetValue("");
 
@@ -176,6 +180,12 @@ namespace SolutionCleaner
         {
             foreach (var e in enumerable)
                 e.Value = value(e.Value);
+        }
+
+        public static void SetValue(this IEnumerable<XElement> enumerable, Func<XElement, string> value)
+        {
+            foreach (var e in enumerable)
+                e.Value = value(e);
         }
 
         public static void SetValue(this IEnumerable<XElement> enumerable, bool value)
