@@ -111,7 +111,7 @@ namespace SolutionCleaner
             #endregion
 
             #region Configure signing
-            var canSign = String.IsNullOrEmpty(relativeSigningKeyPath);
+            var canSign = !String.IsNullOrEmpty(relativeSigningKeyPath);
 
             proj.XPathSelectElements("//build:SignAssembly", ns).Remove();
             proj.XPathSelectElements("//build:DelaySign", ns).Remove();
