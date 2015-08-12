@@ -100,20 +100,13 @@ namespace SolutionCleaner
             proj.XPathSelectElements("//build:Reference/build:Name", ns).Remove();
             proj.XPathSelectElements("//build:Reference/build:RequiredTargetFramework", ns).Remove();
 
-            var contentParent = proj.XPathSelectElements("//build:ItemGroup[build:Reference]", ns).FirstOrDefault();
-            if (contentParent != null)
+            var referenceParent = proj.XPathSelectElements("//build:ItemGroup[build:Reference]", ns).FirstOrDefault();
+            if (referenceParent != null)
             {
-                if (contentParent.XPathSelectElements("//build:ProjectReference", ns).Any())
-                {
-                    var referenceParent = new XElement(XName.Get("ItemGroup", ns.LookupNamespace("build")));
-                    contentParent.AddBeforeSelf(referenceParent);
-                    contentParent = referenceParent;
-                }
+                var references = proj.XPathSelectElements("//build:Reference", ns).OrderBy(c => c.Attribute("Include").Value.SubstringTill(',').Replace("System", "aaaaaaa")).ToArray();
 
-                var contents = proj.XPathSelectElements("//build:Reference", ns).OrderBy(c => c.Attribute("Include").Value.SubstringTill(',').Replace("System", "aaaaaaa")).ToArray();
-
-                contents.Remove();
-                contentParent.Add(contents);
+                references.Remove();
+                referenceParent.Add(references);
             }
             #endregion
 
