@@ -119,6 +119,15 @@ namespace SolutionCleaner
 
             #region Clean up ProjectReferences
             proj.XPathSelectElements("//build:ProjectReference[@Include]/build:Name", ns).SetValue(n => Path.GetFileNameWithoutExtension(n.Parent.Attribute("Include").Value));
+
+            var projectReferenceParent = proj.XPathSelectElements("//build:ItemGroup[build:ProjectReference]", ns).FirstOrDefault();
+            if (projectReferenceParent != null)
+            {
+                var projectReferences = proj.XPathSelectElements("//build:ProjectReference", ns).OrderBy(c => c.Element("Name").Value).ToArray();
+
+                projectReferences.Remove();
+                projectReferenceParent.Add(projectReferences);
+            }
             #endregion
 
             #region Clean up PreBuildEvent/PostBuildEvent
