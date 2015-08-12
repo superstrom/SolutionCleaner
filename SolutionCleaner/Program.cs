@@ -116,7 +116,7 @@ namespace SolutionCleaner
             var projectReferenceParent = proj.XPathSelectElements("//build:ItemGroup[build:ProjectReference]", ns).FirstOrDefault();
             if (projectReferenceParent != null)
             {
-                var projectReferences = proj.XPathSelectElements("//build:ProjectReference", ns).OrderBy(c => c.Element("Name").Value).ToArray();
+                var projectReferences = proj.XPathSelectElements("//build:ProjectReference", ns).OrderBy(c => c.Element(XName.Get("Name", ns.LookupNamespace("build"))).Value).ToArray();
 
                 projectReferences.Remove();
                 projectReferenceParent.Add(projectReferences);
