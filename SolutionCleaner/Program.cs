@@ -36,10 +36,10 @@ namespace SolutionCleaner
             var projText = File.ReadAllText(csprojFile);
             var proj = XElement.Load(csprojFile);
 
+            var relativeSigningKeyPath = File.Exists(signingKeyPath) ? PathTo(signingKeyPath, csprojFile) : null;
+
             if (proj.Name.LocalName == "VisualStudioProject")
                 return;
-
-
 
             #region Remove Cruft
             proj.XPathSelectElements("//build:AutorunEnabled", ns).Remove();
@@ -138,6 +138,8 @@ namespace SolutionCleaner
             #endregion
 
             #region Configure signing
+            var canSign = String.IsNullOrEmpty(relativeSigningKeyPath);
+
             proj.XPathSelectElements("//build:SignAssembly", ns).Remove();
             proj.XPathSelectElements("//build:DelaySign", ns).Remove();
             proj.XPathSelectElements("//build:AssemblyOriginatorKeyFile", ns).Remove();
@@ -148,9 +150,13 @@ namespace SolutionCleaner
             {
                 //mainPG.AddElement("ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch", content: "None");
 
-                mainPG.AddElement("SignAssembly", content: true);
-                mainPG.AddElement("DelaySign", content: false);
-                mainPG.AddElement("AssemblyOriginatorKeyFile", content: PathTo(signingKeyPath, csprojFile));
+                mainPG.AddElement("SignAssembly", content: canSign);
+                if (canSign)
+                {
+                    mainPG.AddElement("DelaySign", content: false);
+
+                    mainPG.AddElement("AssemblyOriginatorKeyFile", content: relativeSigningKeyPath);
+                }
             }
             #endregion
 
