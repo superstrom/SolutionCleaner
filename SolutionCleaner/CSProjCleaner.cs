@@ -69,6 +69,25 @@ namespace SolutionCleaner
             proj.XPathSelectElements("//build:Compile/build:SubType[text()='Code']", ns).Remove();
             var noDesigner = new[] { ".config", ".xml", ".xsd", ".xslt", ".ejs" };
             proj.XPathSelectElements("//build:*[@Include]/build:SubType[text()='Designer']", ns).Where(s => noDesigner.Contains(Path.GetExtension(s.Parent.Attribute("Include").Value), StringComparer.InvariantCultureIgnoreCase)).Remove();
+
+            foreach (var item in proj.XPathSelectElements("//build:*[@Include]", ns).Where(e => e.Attribute("Include").Value.EndsWith(".xaml")))
+            {
+                item.XPathSelectElements(".//build:Generator", ns).Remove();
+                item.XPathSelectElements(".//build:SubType", ns).Remove();
+
+                item.AddElement("Generator", content: "MSBuild:Compile", first: true);
+                item.AddElement("SubType", content: "Designer", first: true);
+            }
+
+            var itemTypes = new[] { "Compile", "Content", "Resource", "EmbeddedResource", "None", "ApplicationDefinition", "Page", "SplashScreen" };
+            var itemXpath = "//build:*[@Include]";
+
+            var items = proj.XPathSelectElements(itemXpath, ns).Where(e => itemTypes.Contains(e.Name.LocalName)).OrderBy(e => e.Attribute("Include").Value).ToArray();
+
+            foreach (var item in items.Where(e => !e.IsEmpty && !e.HasElements))
+            {
+                item.RemoveNodes();
+            }
             #endregion
 
             #region Clean up References
