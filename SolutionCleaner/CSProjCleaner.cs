@@ -69,6 +69,21 @@ namespace SolutionCleaner
             proj.XPathSelectElements(@"//build:Folder", ns).Remove();
             #endregion
 
+            #region Clean up main PropertyGroup
+            proj.XPathSelectElements("//build:PropertyGroup[build:ProjectGuid]/build:FileAlignment", ns).Remove();
+            proj.XPathSelectElements("//build:PropertyGroup[build:ProjectGuid]/build:WarningLevel", ns).Remove();
+
+            var targetFrameworkVersion = proj.XPathSelectElement("//build:TargetFrameworkVersion", ns);
+            var targetFrameworkProfile = proj.XPathSelectElement("//build:TargetFrameworkProfile", ns);
+
+            if (targetFrameworkVersion != null && targetFrameworkProfile != null)
+            {
+                // Move TargetFrameworkProfile directly after TargetFrameworkVersion
+                targetFrameworkProfile.Remove();
+                targetFrameworkVersion.AddAfterSelf(targetFrameworkProfile);
+            }
+            #endregion
+
             #region Clean up Items
             proj.XPathSelectElements("//build:SubType", ns).Where(s => String.IsNullOrWhiteSpace(s.Value)).Remove();
             proj.XPathSelectElements("//*[@Include='app.config']/build:SubType", ns).Remove();
