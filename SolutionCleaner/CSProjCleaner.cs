@@ -63,6 +63,8 @@ namespace SolutionCleaner
             proj.XPathSelectElements("//build:IISExpressUseClassicPipelineMode", ns).Remove();
             #endregion
 
+            proj.DescendantNodes().OfType<XComment>().Where(c => c.Value.Contains("<Target Name=\"BeforeBuild\">")).Remove();
+
             #region Remove Folders
             proj.XPathSelectElements(@"//build:Folder", ns).Remove();
             #endregion
