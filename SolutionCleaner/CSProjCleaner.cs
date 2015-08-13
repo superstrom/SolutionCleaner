@@ -63,6 +63,10 @@ namespace SolutionCleaner
             proj.XPathSelectElements("//build:IISExpressUseClassicPipelineMode", ns).Remove();
             #endregion
 
+            #region Clean up Items
+            proj.XPathSelectElements("//build:Compile/build:SubType[text()='Code']", ns).Remove();
+            #endregion
+
             #region Clean up References
             proj.XPathSelectElements("//build:Reference[@Include='System.configuration']", ns).Attributes("Include").SetValue("System.Configuration");
             proj.XPathSelectElements("//build:Reference[@Include='System.XML']", ns).Attributes("Include").SetValue("System.Xml");
