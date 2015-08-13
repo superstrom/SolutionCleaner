@@ -64,7 +64,11 @@ namespace SolutionCleaner
             #endregion
 
             #region Clean up Items
+            proj.XPathSelectElements("//build:SubType", ns).Where(s => String.IsNullOrWhiteSpace(s.Value)).Remove();
+            proj.XPathSelectElements("//*[@Include='app.config']/build:SubType", ns).Remove();
             proj.XPathSelectElements("//build:Compile/build:SubType[text()='Code']", ns).Remove();
+            var noDesigner = new[] { ".config", ".xml", ".xsd", ".xslt", ".ejs" };
+            proj.XPathSelectElements("//build:*[@Include]/build:SubType[text()='Designer']", ns).Where(s => noDesigner.Contains(Path.GetExtension(s.Parent.Attribute("Include").Value), StringComparer.InvariantCultureIgnoreCase)).Remove();
             #endregion
 
             #region Clean up References
