@@ -63,6 +63,10 @@ namespace SolutionCleaner
             proj.XPathSelectElements("//build:IISExpressUseClassicPipelineMode", ns).Remove();
             #endregion
 
+            #region Remove Folders
+            proj.XPathSelectElements(@"//build:Folder", ns).Remove();
+            #endregion
+
             #region Clean up Items
             proj.XPathSelectElements("//build:SubType", ns).Where(s => String.IsNullOrWhiteSpace(s.Value)).Remove();
             proj.XPathSelectElements("//*[@Include='app.config']/build:SubType", ns).Remove();
