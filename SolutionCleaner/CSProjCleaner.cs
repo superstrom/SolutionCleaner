@@ -133,7 +133,15 @@ namespace SolutionCleaner
             #endregion
 
             #region Clean up ProjectReferences
+            proj.XPathSelectElements("//build:ProjectReference/build:Package", ns).Remove();
+
             proj.XPathSelectElements("//build:ProjectReference[@Include]/build:Name", ns).SetValue(n => Path.GetFileNameWithoutExtension(n.Parent.Attribute("Include").Value));
+            foreach (var name in proj.XPathSelectElements("//build:ProjectReference[@Include]/build:Name", ns))
+            {
+                var parent = name.Parent;
+                name.Remove();
+                parent.AddFirst(name);
+            }
 
             var projectReferenceParent = proj.XPathSelectElements("//build:ItemGroup[build:ProjectReference]", ns).FirstOrDefault();
             if (projectReferenceParent != null)
