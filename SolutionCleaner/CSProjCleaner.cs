@@ -77,6 +77,7 @@ namespace SolutionCleaner
             proj.XPathSelectElements("//build:ProductVersion", ns).Remove();
             proj.XPathSelectElements("//build:SchemaVersion", ns).Remove();
             proj.XPathSelectElements("//build:StartupObject", ns).Where(e => String.IsNullOrWhiteSpace(e.Value)).Remove();
+            proj.XPathSelectElements("//build:ApplicationIcon", ns).Where(e => String.IsNullOrWhiteSpace(e.Value)).Remove();
 
             proj.XPathSelectElements("//build:PropertyGroup[build:ProjectGuid]/build:FileAlignment", ns).Remove();
             proj.XPathSelectElements("//build:PropertyGroup[build:ProjectGuid]/build:WarningLevel", ns).Remove();
