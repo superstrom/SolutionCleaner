@@ -70,7 +70,7 @@ namespace SolutionCleaner
             #endregion
 
             #region Clean up main PropertyGroup
-            proj.SetAttributeValue("ToolsVersion", "4.0");
+            proj.SetAttributeValue("ToolsVersion", "14.0");
             proj.XPathSelectElements("//build:ProjectType", ns).Remove();
             proj.XPathSelectElements("//build:ProductVersion", ns).Remove();
             proj.XPathSelectElements("//build:SchemaVersion", ns).Remove();
