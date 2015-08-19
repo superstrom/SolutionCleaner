@@ -72,8 +72,9 @@ namespace SolutionCleaner
 
         public static void Reparent(this IEnumerable<XElement> nodes, XElement parent)
         {
-            nodes.Remove();
-            parent.Add(nodes);
+            var list = nodes.ToArray();
+            list.Remove();
+            parent.Add(list);
         }
     }
 }
