@@ -85,9 +85,7 @@ namespace SolutionCleaner
             var pullIntoMain = new[] { "//build:ApplicationIcon", "//build:ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch" };
             foreach (var xpath in pullIntoMain)
             {
-                var node = proj.XPathSelectElements(xpath, ns);
-                node.Remove();
-                mainPG.Add(node);
+                proj.XPathSelectElements(xpath, ns).Reparent(mainPG);
             }
 
             var targetFrameworkVersion = proj.XPathSelectElement("//build:TargetFrameworkVersion", ns);
@@ -144,8 +142,7 @@ namespace SolutionCleaner
             {
                 var references = proj.XPathSelectElements("//build:Reference", ns).OrderBy(c => c.Attribute("Include").Value.SubstringTill(',').Replace("System", "aaaaaaa")).ToArray();
 
-                references.Remove();
-                referenceParent.Add(references);
+                references.Reparent(referenceParent);
             }
             #endregion
 
@@ -165,8 +162,7 @@ namespace SolutionCleaner
             {
                 var projectReferences = proj.XPathSelectElements("//build:ProjectReference", ns).OrderBy(c => c.Element(XName.Get("Name", ns.LookupNamespace("build"))).Value).ToArray();
 
-                projectReferences.Remove();
-                projectReferenceParent.Add(projectReferences);
+                projectReferences.Reparent(projectReferenceParent);
             }
             #endregion
 
