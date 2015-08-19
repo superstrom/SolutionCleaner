@@ -81,6 +81,14 @@ namespace SolutionCleaner
             proj.XPathSelectElements("//build:PropertyGroup[build:ProjectGuid]/build:FileAlignment", ns).Remove();
             proj.XPathSelectElements("//build:PropertyGroup[build:ProjectGuid]/build:WarningLevel", ns).Remove();
 
+            var pullIntoMain = new[] { "//build:ApplicationIcon", "//build:ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch" };
+            foreach (var xpath in pullIntoMain)
+            {
+                var node = proj.XPathSelectElements(xpath, ns);
+                node.Remove();
+                mainPG.Add(node);
+            }
+
             var targetFrameworkVersion = proj.XPathSelectElement("//build:TargetFrameworkVersion", ns);
             var targetFrameworkProfile = proj.XPathSelectElement("//build:TargetFrameworkProfile", ns);
 
@@ -184,8 +192,6 @@ namespace SolutionCleaner
 
             if (mainPG != null)
             {
-                //mainPG.AddElement("ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch", content: "None");
-
                 mainPG.AddElement("SignAssembly", content: canSign);
                 if (canSign)
                 {
