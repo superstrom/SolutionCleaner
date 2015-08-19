@@ -71,6 +71,8 @@ namespace SolutionCleaner
 
             #region Clean up main PropertyGroup
             proj.SetAttributeValue("ToolsVersion", "14.0");
+
+            var mainPG = proj.XPathSelectElement("//build:PropertyGroup[build:ProjectGuid]", ns);
             proj.XPathSelectElements("//build:ProjectType", ns).Remove();
             proj.XPathSelectElements("//build:ProductVersion", ns).Remove();
             proj.XPathSelectElements("//build:SchemaVersion", ns).Remove();
@@ -180,7 +182,6 @@ namespace SolutionCleaner
             proj.XPathSelectElements("//build:AssemblyOriginatorKeyFile", ns).Remove();
             proj.XPathSelectElements("//build:AssemblyKeyContainerName", ns).Remove();
 
-            var mainPG = proj.XPathSelectElements("//build:PropertyGroup[build:ProjectGuid]", ns).FirstOrDefault();
             if (mainPG != null)
             {
                 //mainPG.AddElement("ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch", content: "None");
