@@ -88,15 +88,9 @@ namespace SolutionCleaner
                 proj.XPathSelectElements(xpath, ns).Reparent(mainPG);
             }
 
-            var targetFrameworkVersion = proj.XPathSelectElement("//build:TargetFrameworkVersion", ns);
-            var targetFrameworkProfile = proj.XPathSelectElement("//build:TargetFrameworkProfile", ns);
-
-            if (targetFrameworkVersion != null && targetFrameworkProfile != null)
-            {
-                // Move TargetFrameworkProfile directly after TargetFrameworkVersion
-                targetFrameworkProfile.Remove();
-                targetFrameworkVersion.AddAfterSelf(targetFrameworkProfile);
-            }
+            var mainOrder = new[] { "Configuration", "Platform", "ProjectGuid", "OutputType", "ProjectTypeGuids", "RootNamespace", "AssemblyName", "TargetFrameworkVersion", "TargetFrameworkProfile", "AutoGenerateBindingRedirects", "AppDesignerFolder", "ApplicationIcon", };
+            var ordered = mainPG.Elements().OrderBy(x => IndexOf(mainOrder, x.Name.LocalName) ?? Int32.MaxValue).ToArray();
+            ordered.Reparent(mainPG);
             #endregion
 
             #region Clean up Items
@@ -201,6 +195,17 @@ namespace SolutionCleaner
 
             proj.XPathSelectElements("//build:PropertyGroup", ns).Where(e => !e.Nodes().Any()).Remove();
             proj.XPathSelectElements("//build:ItemGroup", ns).Where(e => !e.Nodes().Any()).Remove();
+        }
+
+        static int? IndexOf(string[] order, string localName)
+        {
+            for (int i = 0; i < order.Length; ++i)
+            {
+                if (order[i] == localName)
+                    return i;
+            }
+
+            return null;
         }
     }
 }
