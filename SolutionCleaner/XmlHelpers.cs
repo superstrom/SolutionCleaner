@@ -69,5 +69,11 @@ namespace SolutionCleaner
                 item.Value = value;
         }
         #endregion
+
+        public static void Reparent(this IEnumerable<XElement> nodes, XElement parent)
+        {
+            nodes.Remove();
+            parent.Add(nodes);
+        }
     }
 }
