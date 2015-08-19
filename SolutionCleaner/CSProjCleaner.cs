@@ -82,15 +82,11 @@ namespace SolutionCleaner
             proj.XPathSelectElements("//build:PropertyGroup[build:ProjectGuid]/build:FileAlignment", ns).Remove();
             proj.XPathSelectElements("//build:PropertyGroup[build:ProjectGuid]/build:WarningLevel", ns).Remove();
 
-            var pullIntoMain = new[] { "//build:ApplicationIcon", "//build:ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch" };
-            foreach (var xpath in pullIntoMain)
-            {
-                proj.XPathSelectElements(xpath, ns).Reparent(mainPG);
-            }
+            proj.XPathSelectElements("//build:ApplicationIcon", ns).Reparent(mainPG);
+            proj.XPathSelectElements("//build:ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch", ns).Reparent(mainPG);
 
             var mainOrder = new[] { "Configuration", "Platform", "ProjectGuid", "OutputType", "ProjectTypeGuids", "RootNamespace", "AssemblyName", "TargetFrameworkVersion", "TargetFrameworkProfile", "AutoGenerateBindingRedirects", "AppDesignerFolder", "ApplicationIcon", };
-            var ordered = mainPG.Elements().OrderBy(x => IndexOf(mainOrder, x.Name.LocalName) ?? Int32.MaxValue).ToArray();
-            ordered.Reparent(mainPG);
+            mainPG.Elements().OrderBy(x => IndexOf(mainOrder, x.Name.LocalName) ?? Int32.MaxValue).Reparent(mainPG);
             #endregion
 
             #region Clean up Items
@@ -110,9 +106,8 @@ namespace SolutionCleaner
             }
 
             var itemTypes = new[] { "Compile", "Content", "Resource", "EmbeddedResource", "None", "ApplicationDefinition", "Page", "SplashScreen" };
-            var itemXpath = "//build:*[@Include]";
 
-            var items = proj.XPathSelectElements(itemXpath, ns).Where(e => itemTypes.Contains(e.Name.LocalName)).OrderBy(e => e.Attribute("Include").Value).ToArray();
+            var items = proj.XPathSelectElements("//build:*[@Include]", ns).Where(e => itemTypes.Contains(e.Name.LocalName)).OrderBy(e => e.Attribute("Include").Value).ToArray();
 
             foreach (var item in items.Where(e => !e.IsEmpty && !e.HasElements))
             {
@@ -134,9 +129,7 @@ namespace SolutionCleaner
             var referenceParent = proj.XPathSelectElements("//build:ItemGroup[build:Reference]", ns).FirstOrDefault();
             if (referenceParent != null)
             {
-                var references = proj.XPathSelectElements("//build:Reference", ns).OrderBy(c => c.Attribute("Include").Value.SubstringTill(',').Replace("System", "aaaaaaa")).ToArray();
-
-                references.Reparent(referenceParent);
+                proj.XPathSelectElements("//build:Reference", ns).OrderBy(c => c.Attribute("Include").Value.SubstringTill(',').Replace("System", "aaaaaaa")).Reparent(referenceParent);
             }
             #endregion
 
@@ -154,9 +147,7 @@ namespace SolutionCleaner
             var projectReferenceParent = proj.XPathSelectElements("//build:ItemGroup[build:ProjectReference]", ns).FirstOrDefault();
             if (projectReferenceParent != null)
             {
-                var projectReferences = proj.XPathSelectElements("//build:ProjectReference", ns).OrderBy(c => c.Element(XName.Get("Name", ns.LookupNamespace("build"))).Value).ToArray();
-
-                projectReferences.Reparent(projectReferenceParent);
+                proj.XPathSelectElements("//build:ProjectReference", ns).OrderBy(c => c.Element(XName.Get("Name", ns.LookupNamespace("build"))).Value).Reparent(projectReferenceParent);
             }
             #endregion
 
