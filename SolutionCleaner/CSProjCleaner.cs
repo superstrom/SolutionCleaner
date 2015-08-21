@@ -85,6 +85,8 @@ namespace SolutionCleaner
             proj.XPathSelectElements("//build:ApplicationIcon", ns).Reparent(mainPG);
             proj.XPathSelectElements("//build:ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch", ns).Reparent(mainPG);
 
+            proj.XPathSelectElements("//build:ProjectTypeGuids", ns).SetValue(e => e.ToLower());
+
             var mainOrder = new[] { "Configuration", "Platform", "ProjectGuid", "OutputType", "ProjectTypeGuids", "RootNamespace", "AssemblyName", "TargetFrameworkVersion", "TargetFrameworkProfile", "AutoGenerateBindingRedirects", "AppDesignerFolder", "ApplicationIcon", };
             mainPG.Elements().OrderBy(x => IndexOf(mainOrder, x.Name.LocalName) ?? Int32.MaxValue).Reparent(mainPG);
             #endregion
