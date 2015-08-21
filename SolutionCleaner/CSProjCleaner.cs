@@ -153,6 +153,19 @@ namespace SolutionCleaner
             }
             #endregion
 
+            #region Clean up Web Projects
+            proj.XPathSelectElements("//build:SaveServerSettingsInUserFile", ns).SetValue(true);
+
+            proj.XPathSelectElements("//build:WebProjectProperties/build:UseIIS", ns).Remove();
+            proj.XPathSelectElements("//build:WebProjectProperties/build:AutoAssignPort", ns).Remove();
+            proj.XPathSelectElements("//build:WebProjectProperties/build:DevelopmentServerPort", ns).Remove();
+            proj.XPathSelectElements("//build:WebProjectProperties/build:DevelopmentServerVPath", ns).Remove();
+            proj.XPathSelectElements("//build:WebProjectProperties/build:IISUrl", ns).Remove();
+            proj.XPathSelectElements("//build:WebProjectProperties/build:NTLMAuthentication", ns).Remove();
+            proj.XPathSelectElements("//build:WebProjectProperties/build:UseCustomServer", ns).Remove();
+            proj.XPathSelectElements("//build:WebProjectProperties/build:CustomServerUrl", ns).Remove();
+            #endregion
+
             #region Clean up PreBuildEvent/PostBuildEvent
             proj.XPathSelectElements("//build:PostBuildEvent", ns).Where(e => e.Value.IndexOf("sn.exe", StringComparison.CurrentCultureIgnoreCase) >= 0).SetValue("");
 
