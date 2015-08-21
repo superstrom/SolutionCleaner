@@ -154,7 +154,7 @@ namespace SolutionCleaner
             #endregion
 
             #region Clean up PreBuildEvent/PostBuildEvent
-            proj.XPathSelectElements("//build:PostBuildEvent", ns).Where(e => e.Value.IndexOf("sn.exe", StringComparison.CurrentCultureIgnoreCase) > 0).SetValue("");
+            proj.XPathSelectElements("//build:PostBuildEvent", ns).Where(e => e.Value.IndexOf("sn.exe", StringComparison.CurrentCultureIgnoreCase) >= 0).SetValue("");
 
             proj.XPathSelectElements("//build:PreBuildEvent", ns).Where(e => String.IsNullOrWhiteSpace(e.Value)).Remove();
             proj.XPathSelectElements("//build:PostBuildEvent", ns).Where(e => String.IsNullOrWhiteSpace(e.Value)).Remove();
