@@ -70,11 +70,14 @@ namespace SolutionCleaner
         }
         #endregion
 
-        public static void Reparent(this IEnumerable<XElement> nodes, XElement parent)
+        public static void Reparent(this IEnumerable<XElement> nodes, XElement parent, bool first = false)
         {
             var list = nodes.ToArray();
             list.Remove();
-            parent.Add(list);
+            if (first)
+                parent.AddFirst(list);
+            else
+                parent.Add(list);
         }
     }
 }
