@@ -11,6 +11,9 @@ namespace SolutionCleaner
     {
         public static void Clean(XElement proj, IXmlNamespaceResolver ns, string relativeSigningKeyPath = null)
         {
+            var configurations = new[] { "Debug", "Release" };
+            var platforms = new[] { "AnyCPU", "x86", "x64", "ARM" };
+
             if (proj.Name.LocalName == "VisualStudioProject")
                 return;
 
@@ -89,6 +92,22 @@ namespace SolutionCleaner
 
             var mainOrder = new[] { "Configuration", "Platform", "ProjectGuid", "ProjectTypeGuids", "OutputType", "RootNamespace", "AssemblyName", "TargetFrameworkVersion", "TargetFrameworkProfile", "AutoGenerateBindingRedirects", "AppDesignerFolder", "ApplicationIcon", };
             mainPG.Elements().OrderBy(x => IndexOf(mainOrder, x.Name.LocalName) ?? Int32.MaxValue).Reparent(mainPG);
+            #endregion
+
+            #region Sort Configuration items
+            var pcOrder = platforms.SelectMany(p => configurations.Select(c => String.Format("'{0}|{1}'", c, p))).ToArray();
+            proj.XPathSelectElements("//*[contains(@Condition, '$(Configuration)|$(Platform)')]", ns).Where(e => !pcOrder.Any(o => e.Attribute("Condition").Value.Contains(o))).Remove();
+            foreach (var grouping in proj.XPathSelectElements("//*[contains(@Condition, '$(Configuration)|$(Platform)')]", ns).GroupBy(e => new { p = e.Parent, en = e.Name.LocalName }))
+            {
+                var previous = grouping.First().PreviousNode;
+
+                var children = grouping.OrderBy(e => IndexOf(pcOrder, o => e.Attribute("Condition").Value.Contains(o)) ?? Int32.MaxValue).ThenBy(e => e.Attribute("Condition").Value.Trim()).ToArray();
+
+                children.Remove();
+                previous.AddAfterSelf(children);
+
+                continue;
+            }
             #endregion
 
             #region Clean up Items
@@ -201,6 +220,17 @@ namespace SolutionCleaner
 
             proj.XPathSelectElements("//build:PropertyGroup", ns).Where(e => !e.Nodes().Any()).Remove();
             proj.XPathSelectElements("//build:ItemGroup", ns).Where(e => !e.Nodes().Any()).Remove();
+        }
+
+        static int? IndexOf(string[] order, Func<string, bool> p)
+        {
+            for (int i = 0; i < order.Length; ++i)
+            {
+                if (p(order[i]))
+                    return i;
+            }
+
+            return null;
         }
 
         static int? IndexOf(string[] order, string localName)
