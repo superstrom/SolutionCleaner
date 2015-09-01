@@ -104,6 +104,9 @@ namespace SolutionCleaner
 
             #region Sort Configuration items
             var pcOrder = platforms.SelectMany(p => configurations.Select(c => String.Format("'{0}|{1}'", c, p))).ToArray();
+
+            var cpgOrder = new[] { "PlatformTarget", "DebugSymbols", "DebugType", "Optimize", "OutputPath", "DefineConstants", "ErrorReport", "WarningLevel", "UseVSHostingProcess", "CodeAnalysisIgnoreBuiltInRuleSets", "CodeAnalysisIgnoreBuiltInRules", "RunCodeAnalysis", };
+
             proj.XPathSelectElements("//*[contains(@Condition, '$(Configuration)|$(Platform)')]", ns).Where(e => !pcOrder.Any(o => e.Attribute("Condition").Value.Contains(o))).Remove();
             foreach (var grouping in proj.XPathSelectElements("//*[contains(@Condition, '$(Configuration)|$(Platform)')]", ns).GroupBy(e => new { p = e.Parent, en = e.Name.LocalName }))
             {
@@ -113,6 +116,11 @@ namespace SolutionCleaner
 
                 children.Remove();
                 previous.AddAfterSelf(children);
+
+                foreach (var cgp in children.Where(e => e.Name.LocalName == "PropertyGroup"))
+                {
+                    cgp.Elements().OrderBy(e => IndexOf(cpgOrder, e.Name.LocalName) ?? Int32.MaxValue).Reparent(cgp);
+                }
 
                 continue;
             }
