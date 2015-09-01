@@ -98,7 +98,7 @@ namespace SolutionCleaner
 
             proj.XPathSelectElements("//build:ProjectTypeGuids", ns).SetValue(e => e.ToLower());
 
-            var mainOrder = new[] { "Configuration", "Platform", "ProjectGuid", "ProjectTypeGuids", "OutputType", "RootNamespace", "AssemblyName", "TargetFrameworkVersion", "TargetFrameworkProfile", "AutoGenerateBindingRedirects", "AppDesignerFolder", "ApplicationIcon", };
+            var mainOrder = new[] { "Configuration", "Platform", "ProjectGuid", "ProjectTypeGuids", "OutputType", "AppDesignerFolder", "RootNamespace", "AssemblyName", "TargetFrameworkVersion", "TargetFrameworkProfile", "AutoGenerateBindingRedirects", "ApplicationIcon", };
             mainPG.Elements().OrderBy(x => IndexOf(mainOrder, x.Name.LocalName) ?? Int32.MaxValue).Reparent(mainPG);
             #endregion
 
