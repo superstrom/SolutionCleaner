@@ -124,6 +124,8 @@ namespace SolutionCleaner
 
                 continue;
             }
+
+            proj.XPathSelectElements("//build:DefineConstants", ns).SetValue(e => String.Join(";", e.Value.Split(';').OrderBy(v => v.TrimStart('_')).ThenBy(v => v)));
             #endregion
 
             #region Clean up Items
