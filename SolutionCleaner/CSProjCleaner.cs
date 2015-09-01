@@ -11,6 +11,8 @@ namespace SolutionCleaner
     {
         public static void Clean(XElement proj, IXmlNamespaceResolver ns, string relativeSigningKeyPath = null)
         {
+            var frameworkVersion = "v4.5.2";
+            var frameworkProfile = "";
             var configurations = new[] { "Debug", "Release" };
             var platforms = new[] { "AnyCPU", "x86", "x64", "ARM" };
 
@@ -87,6 +89,12 @@ namespace SolutionCleaner
 
             proj.XPathSelectElements("//build:ApplicationIcon", ns).Reparent(mainPG);
             proj.XPathSelectElements("//build:ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch", ns).Reparent(mainPG);
+
+            if (frameworkVersion != null)
+            {
+                proj.XPathSelectElements("//build:TargetFrameworkVersion", ns).SetValue(frameworkVersion);
+                proj.XPathSelectElements("//build:TargetFrameworkProfile", ns).SetValue(frameworkProfile);
+            }
 
             proj.XPathSelectElements("//build:ProjectTypeGuids", ns).SetValue(e => e.ToLower());
 
