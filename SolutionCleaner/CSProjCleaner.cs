@@ -94,6 +94,7 @@ namespace SolutionCleaner
             {
                 proj.XPathSelectElements("//build:TargetFrameworkVersion", ns).SetValue(frameworkVersion);
                 proj.XPathSelectElements("//build:TargetFrameworkProfile", ns).SetValue(frameworkProfile);
+                proj.XPathSelectElements("//build:TargetFrameworkProfile", ns).Where(e => !e.IsEmpty && !e.HasElements).Nodes().Remove();
             }
 
             proj.XPathSelectElements("//build:ProjectTypeGuids", ns).SetValue(e => e.ToLower());
