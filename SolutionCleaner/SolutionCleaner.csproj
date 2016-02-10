@@ -5,6 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{5E0AE673-51F2-4375-9771-2CFD3278E252}</ProjectGuid>
+    <ProjectTypeGuids>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>SolutionCleaner</RootNamespace>
@@ -47,6 +48,7 @@
   <ItemGroup>
     <Compile Include="CSProjCleaner.cs" />
     <Compile Include="Program.cs" />
+    <Compile Include="ProjectTypeGuids.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="XmlHelpers.cs" />
   </ItemGroup>
