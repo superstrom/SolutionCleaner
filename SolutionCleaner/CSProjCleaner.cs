@@ -192,6 +192,15 @@ namespace SolutionCleaner
             {
                 proj.XPathSelectElements("//build:ProjectReference", ns).OrderBy(c => c.Element(XName.Get("Name", ns.LookupNamespace("build"))).Value).Reparent(projectReferenceParent);
             }
+
+            var imports = proj.XPathSelectElements("//build:Import[starts-with(@Project, '..')]", ns).ToArray();
+            foreach (var import in imports)
+            {
+                var path = import.Attribute("Project").Value;
+                import.SetAttributeValue("Condition", String.Format("Exists('{0}')", path));
+
+                continue;
+            }
             #endregion
 
             #region Clean up Web Projects
