@@ -50,6 +50,7 @@ namespace SolutionCleaner
             proj.XPathSelectElements("//build:SccLocalPath", ns).Remove();
             proj.XPathSelectElements("//build:SccAuxPath", ns).Remove();
             proj.XPathSelectElements("//build:SccProvider", ns).Remove();
+            proj.XPathSelectElements("//build:NuGetPackageImportStamp", ns).Remove();
 
             proj.XPathSelectElements("//build:NoWin32Manifest", ns).Remove();
 
