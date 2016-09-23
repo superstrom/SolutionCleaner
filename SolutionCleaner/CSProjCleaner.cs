@@ -94,8 +94,10 @@ namespace SolutionCleaner
             if (frameworkVersion != null)
             {
                 proj.XPathSelectElements("//build:TargetFrameworkVersion", ns).SetValue(frameworkVersion);
-                proj.XPathSelectElements("//build:TargetFrameworkProfile", ns).SetValue(frameworkProfile);
-                proj.XPathSelectElements("//build:TargetFrameworkProfile", ns).Where(e => !e.IsEmpty && !e.HasElements).Nodes().Remove();
+                if (!string.IsNullOrEmpty(frameworkProfile))
+                    proj.XPathSelectElements("//build:TargetFrameworkProfile", ns).SetValue(frameworkProfile);
+                else
+                    proj.XPathSelectElements("//build:TargetFrameworkProfile", ns).Nodes().Remove();
             }
 
             proj.XPathSelectElements("//build:ProjectTypeGuids", ns).SetValue(e => e.ToLower());
