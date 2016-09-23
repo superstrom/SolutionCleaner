@@ -13,7 +13,7 @@ namespace SolutionCleaner
         {
             var frameworkVersion = "v4.5.2";
             var frameworkProfile = "";
-            var configurations = new[] { "Debug", "Release" };
+            var configurations = new[] { "Debug", "Test", "Release" };
             var platforms = new[] { "AnyCPU", "x86", "x64", "ARM" };
 
             if (proj.Name.LocalName == "VisualStudioProject")
